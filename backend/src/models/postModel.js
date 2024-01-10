@@ -1,7 +1,7 @@
 import pool from "../../database/connection.js";
 
 const getPosts = async () => {
-    const sql = "SELECT id, titulo, img, descripcion FROM posts";
+    const sql = "SELECT id, titulo, img, descripcion, likes FROM posts";
 
     try {
         const posts = await pool.query(sql);
@@ -22,4 +22,26 @@ const createPost = async ({ titulo, url, descripcion }) => {
     }
 };
 
-export const postModel = { getPosts, createPost };
+const updatePostLike = async (id) => {
+    const sql = "UPDATE posts SET likes = likes+1 WHERE id = $1 RETURNING *";
+
+    try {
+        const result = await pool.query(sql, [id]);
+        return result.rows[0];
+    } catch (error) {
+        throw new Error(error);
+    }
+};
+
+const deletePost = async (id) => {
+    const sql = "DELETE FROM posts WHERE id = $1 RETURNING *";
+
+    try {
+        const result = await pool.query(sql, [id]);
+        return result.rows[0];
+    } catch (error) {
+        throw new Error(error);
+    }
+};
+
+export const postModel = { getPosts, createPost, updatePostLike, deletePost };
